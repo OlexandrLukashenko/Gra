@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pokemon Battle — Модульний рефакторинг</title>
+
+  <style>
+    body{font-family:Arial;margin:0;background:linear-gradient(#8fd1ff,#7fd3a6);min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .stage{width:980px;background:rgba(255,255,255,0.08);padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+    h1{margin:0 0 12px;font-size:20px;color:#123}
+    .arena{display:flex;justify-content:space-between;gap:20px}
+    .card{width:260px;background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.12);text-align:center}
+    .avatar img{width:96px;height:96px}
+    .progress{height:16px;border-radius:20px;background:#eee;overflow:hidden}
+    .progress > i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#6ee7b7,#3dbd7a);transition:width .3s}
+    #logs{height:220px;background:#fff;padding:6px;border-radius:8px;overflow:auto;display:flex;flex-direction:column-reverse}
+    .log-row{padding:6px;border-bottom:1px solid #eee}
+    .hit{animation:hit .25s}
+    @keyframes hit{50%{transform:translateX(-5px);filter:brightness(1.2)}}
+  </style>
+</head>
+
+<body>
+  <div class="stage">
+    <h1>Pokemon Battle — Модульна версія</h1>
+
+    <div class="top">
+      <label>
+        Вибір гравця:
+        <select id="player-select">
+          <option value="pikachu">Pikachu</option>
+          <option value="charmander">Charmander</option>
+          <option value="random">Випадково</option>
+        </select>
+      </label>
+
+      <button id="start">Старт</button>
+      <button id="auto-toggle">Авто: Вимкнено</button>
+    </div>
+
+    <div class="arena">
+      <div class="card" id="left-card">
+        <div class="avatar"><img id="left-img" src=""></div>
+        <div id="left-name"></div>
+        <div id="left-level"></div>
+        <div class="progress"><i id="left-bar"></i></div>
+        <div id="left-hp"></div>
+      </div>
+
+      <div style="flex:1">
+        <button id="attack-random">Атака (обоє)</button>
+        <button id="attack-strong">Сильна атака</button>
+        <button id="reset">Скинути</button>
+        <div id="logs"></div>
+      </div>
+
+      <div class="card" id="right-card">
+        <div class="avatar"><img id="right-img" src=""></div>
+        <div id="right-name"></div>
+        <div id="right-level"></div>
+        <div class="progress"><i id="right-bar"></i></div>
+        <div id="right-hp"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
