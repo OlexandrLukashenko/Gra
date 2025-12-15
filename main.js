@@ -1,11 +1,9 @@
 import { Game } from "./game.js";
 
-Game.initUI();
-Game.choosePlayer("pikachu");
+Game.choosePlayer("random");
 
 document.getElementById("start").onclick = () => {
-  const choice = document.getElementById("player-select").value;
-  Game.choosePlayer(choice);
+  Game.choosePlayer(document.getElementById("player-select").value);
 };
 
 document.getElementById("attack-random").onclick = Game.bothAttack;
