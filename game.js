@@ -2,12 +2,24 @@ import Pokemon from "./pokemon.js";
 
 const sprites = {
   pikachu: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
-  charmander: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png"
+  charmander: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
+  bulbasaur: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+  squirtle: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
+  eevee: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png",
+  jigglypuff: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/39.png"
 };
+
+const pokemons = [
+  { id: "pikachu", name: "Pikachu", sprite: sprites.pikachu },
+  { id: "charmander", name: "Charmander", sprite: sprites.charmander },
+  { id: "bulbasaur", name: "Bulbasaur", sprite: sprites.bulbasaur },
+  { id: "squirtle", name: "Squirtle", sprite: sprites.squirtle },
+  { id: "eevee", name: "Eevee", sprite: sprites.eevee },
+  { id: "jigglypuff", name: "Jigglypuff", sprite: sprites.jigglypuff }
+];
 
 export const Game = (() => {
 
-  // Отримання DOM
   const dom = {
     left: {
       bar: document.getElementById("left-bar"),
@@ -28,40 +40,25 @@ export const Game = (() => {
     logs: document.getElementById("logs")
   };
 
-  // Масив персонажів
-  const pokemons = [
-    { name: "Pikachu", sprite: sprites.pikachu },
-    { name: "Charmander", sprite: sprites.charmander }
-  ];
-
-  // Створюємо через масив
-  const [left, right] = pokemons.map((p, i) =>
+  const createPokemon = (data, side) =>
     new Pokemon({
-      name: p.name,
-      avatar: p.sprite,
+      name: data.name,
+      avatar: data.sprite,
       level: 1,
       maxHp: 100,
-      bar: dom[i === 0 ? "left" : "right"].bar,
-      hpText: dom[i === 0 ? "left" : "right"].hp,
-      card: dom[i === 0 ? "left" : "right"].card
-    })
-  );
+      bar: dom[side].bar,
+      hpText: dom[side].hp,
+      card: dom[side].card
+    });
 
-  let player = left, enemy = right;
-  let auto = null;
-  let round = 0;
+  let player, enemy, round = 0, auto = null;
 
   const initUI = () => {
-    const pairs = [
-      [player, dom.left],
-      [enemy, dom.right]
-    ];
-
-    pairs.forEach(([poke, block]) => {
-      block.name.textContent = poke.name;
-      block.img.src = poke.avatar;
-      block.level.textContent = "Lv. " + poke.level;
-      poke.updateUI();
+    [[player, dom.left], [enemy, dom.right]].forEach(([p, d]) => {
+      d.name.textContent = p.name;
+      d.img.src = p.avatar;
+      d.level.textContent = "Lv. " + p.level;
+      p.updateUI();
     });
   };
 
@@ -73,18 +70,27 @@ export const Game = (() => {
   };
 
   const choosePlayer = choice => {
-    if (choice === "random")
-      [player, enemy] = Math.random() < 0.5 ? [left, right] : [right, left];
-    else if (choice === "pikachu")
-      [player, enemy] = [left, right];
-    else
-      [player, enemy] = [right, left];
+    let p1, p2;
 
+    if (choice === "random") {
+      [p1, p2] = [...pokemons].sort(() => Math.random() - 0.5);
+    } else {
+      p1 = pokemons.find(p => p.id === choice);
+      p2 = pokemons.filter(p => p.id !== choice)
+                   .sort(() => Math.random() - 0.5)[0];
+    }
+
+    player = createPokemon(p1, "left");
+    enemy = createPokemon(p2, "right");
+
+    round = 0;
+    dom.logs.innerHTML = "";
     log(`Гравець: ${player.name}, Противник: ${enemy.name}`);
     initUI();
   };
 
   const bothAttack = () => {
+    if (!player || !enemy) return;
     round++;
     const dmg1 = enemy.attack(player, { min: 5, max: 20 });
     const dmg2 = player.attack(enemy, { min: 5, max: 20 });
@@ -93,6 +99,7 @@ export const Game = (() => {
   };
 
   const strongAttack = () => {
+    if (!player || !enemy) return;
     round++;
     const dmg = player.attack(enemy, { min: 18, max: 30 });
     log(`Раунд ${round}: ${player.name} завдав ${dmg}`);
@@ -105,22 +112,16 @@ export const Game = (() => {
     else if (enemy.hp === 0) log(player.name + " переміг!");
   };
 
-  const reset = () => {
-    left.reset();
-    right.reset();
-    round = 0;
-    dom.logs.innerHTML = "";
-    log("Гру скинуто");
-  };
+  const reset = () => choosePlayer("random");
 
   const toggleAuto = () => {
     if (auto) {
       clearInterval(auto);
       auto = null;
-      return;
+    } else {
+      auto = setInterval(bothAttack, 1200);
     }
-    auto = setInterval(bothAttack, 1200);
   };
 
-  return { initUI, choosePlayer, bothAttack, strongAttack, reset, toggleAuto };
+  return { choosePlayer, bothAttack, strongAttack, reset, toggleAuto };
 })();
